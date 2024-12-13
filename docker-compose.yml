@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  db:  # Monto Database
+    image: mariadb:10.5
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_DATABASE: vulnerable_db
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql #Script sql per crezione Database e tabella
+    ports:
+      - "3306:3306"
+
+  aapache:  # Monta il volume per il codice php
+    build: .
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html 
+
+  phpmyadmin: # Monta il volume phpmyadmin per la gestione del db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
